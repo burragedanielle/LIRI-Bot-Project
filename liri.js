@@ -1,73 +1,82 @@
 require('dotenv').config();
 
+var fs = require('fs');
+
 // AXIOS // 
-const axios = require('axios'); 
+var axios = require('axios');
 
 // KEYS //
-var keys = require('./keys.js');
+var keys = require('./keys');
 
 // Spotify //
-const spotify = require('node-spotify-api');
-var Spotify = new Spotify(keys.spotify); 
-
-// OMDB KEYS // 
-
-
-// make LIRI so it can take in following commands from terminal 
-// 'concert-this'
-// 'spotify-this-song'
-// 'movie-this'
-// do-what-it-says'
-
-// WHAT COMMANDS LOOK LIKE
-
-// 1. `node liri.js concert-this <artist/band name here>`
-
-//    * This will search the Bands in Town Artist Events API (`"https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"`) for an artist and render the following information about each event to the terminal:
-
-//      * Name of the venue
-
-//      * Venue location
+var Spotify = require('node-spotify-api');
+var spotify = new Spotify(keys.spotify); 
 
 //      * Date of the Event (use moment to format this as "MM/DD/YYYY")
 
-var concertRequest = 'concert-this'; 
-var songRequest = 'spotify-this-song';
-var movieRequest = 'movie-this'; 
+var value = process.argv.slice(3);
+var request = process.argv[2];
 
-switch(process.argv.slice(2)){
-    case(concertRequest):
-        bandsInTown();
-    break;
-    case(songRequest):
-        //include spotify function; 
-    break; 
-    case(movieRequest):
-        //include omdb function; 
-    break;
+switch (request) {
+    case 'concert-this':
+        bandsInTown(value);
+        break;
+    case 'spotify-this-song':
+        spotifyRequest(value);
+        break;
+    case 'movie-this':
+        omdbRequest(value);
+        break;
 }
 
-function bandsInTown(){
+function bandsInTown(artist) {
 
-var artist = process.argv.slice(2)
+    artist = artist.join(('+'));
 
-var concertUrl = `https://rest.bandsintown.com/artists/${artist}/events?app_id=codingbootcamp`; 
+    var concertUrl = `https://rest.bandsintown.com/artists/${artist}/events?app_id=codingbootcamp`;
 
-axios.get(concertUrl)
-    .then(function(respose){
-        // revisions - you will want to make these concert URLs go thru JSON object to find specified information. For date of event use moment.js to format it properly. 
-        console.log(`
-        Name of Venue: ${concertUrl[0].venue.name}
-        Venue Location: ${concertUrl[0].venue.location}
-        Date of the Event: ${concertURL[0].datetime}`);
-    }).catch(function (error) {
-        // handle error
-        console.log(error);
-    });
+    axios.get(concertUrl)
+        .then(function(response) {
+            // revisions - you will want to make these concert URLs go thru JSON object to find specified information. For date of event use moment.js to format it properly. 
+            console.log(`
+        Name of Venue: ${response.data[0].venue.name}
+        Venue Location: ${response.data[0].venue.city}
+        Date of the Event: ${response.data[0].datetime}`);
+        }).catch(function (error) {
+            // handle error
+            console.log(error);
+        });
 };
 
+function spotifyRequest(song){
+    spotify.search({ type: 'track', query: song, limit: 1}, function(err, data) {
+        if(data){
+            var dataSongs = data;
+            console.log(dataSongs);
+        }
+        else if (err) {
+          return console.log('Error occurred: ' + err);
+        }
+    });
+}
 
-
-
-
-
+function omdbRequest(movie){
+    movie = movie.join(('+'));
+    var movieUrl = `http://www.omdbapi.com/?apikey=8c0c7a4f&t=${movie}`; 
+    
+    axios.get(movieUrl)
+        .then(function(data){
+            console.log(`
+            Title of Movie: ${data.data.Title}
+            Year: ${data.data.Year}
+            Country: ${data.data.Country}
+            Language: ${data.data.Language}
+            Plot: ${data.data.Plot}
+            Actors: ${data.data.Actors}
+            IMDB Rating: ${data.data.imdbRating}
+            `)
+        }).catch(function (error) {
+            // handle error
+            console.log(error);
+        });
+}
