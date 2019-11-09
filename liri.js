@@ -1,19 +1,16 @@
 require('dotenv').config();
-
 var fs = require('fs');
-
-// AXIOS // 
 var axios = require('axios');
+var Spotify = require('node-spotify-api');
+var moment = require('moment'); 
 
 // KEYS //
 var keys = require('./keys');
 
-// Spotify //
-var Spotify = require('node-spotify-api');
+// SPOTIFY //
 var spotify = new Spotify(keys.spotify); 
 
-//      * Date of the Event (use moment to format this as "MM/DD/YYYY")
-
+// ARGUMENTS // 
 var value = process.argv.slice(3);
 var request = process.argv[2];
 
@@ -27,21 +24,23 @@ switch (request) {
     case 'movie-this':
         omdbRequest(value);
         break;
+    case 'do-what-it-says': 
+        doWhatItSays();
+        break;
 }
 
 function bandsInTown(artist) {
-
     artist = artist.join(('+'));
-
     var concertUrl = `https://rest.bandsintown.com/artists/${artist}/events?app_id=codingbootcamp`;
 
     axios.get(concertUrl)
         .then(function(response) {
-            // revisions - you will want to make these concert URLs go thru JSON object to find specified information. For date of event use moment.js to format it properly. 
             console.log(`
+        **** NEXT UPCOMING SHOW **** \n
         Name of Venue: ${response.data[0].venue.name}
         Venue Location: ${response.data[0].venue.city}
-        Date of the Event: ${response.data[0].datetime}`);
+        Date of the Event: ${moment(response.data[0].datetime).format('L')}
+        \n`);
         }).catch(function (error) {
             // handle error
             console.log(error);
@@ -49,16 +48,22 @@ function bandsInTown(artist) {
 };
 
 function spotifyRequest(song){
-    spotify.search({ type: 'track', query: song, limit: 1}, function(err, data) {
-        if(data){
-            var dataSongs = data;
-            console.log(dataSongs);
-        }
-        else if (err) {
-          return console.log('Error occurred: ' + err);
-        }
-    });
-}
+    spotify.search({ type: 'track', query: song, limit: 5})  
+        .then(function(data){
+            if(data){
+                console.log(data.tracks.items[0].album.artists);
+                console.log(`
+                Artist(s): ${data.tracks.items[0].album.artists[0].name}
+                Song Name: '${data.tracks.items[0].name}'
+                Preview: ${data.tracks.items[0].preview_url}
+                Album: ${data.tracks.items[0].album.name}
+                `);
+            }
+            else if (err) {
+              return console.log('Error occurred: ' + err);
+            }
+        });
+};
 
 function omdbRequest(movie){
     movie = movie.join(('+'));
@@ -79,4 +84,11 @@ function omdbRequest(movie){
             // handle error
             console.log(error);
         });
-}
+};
+
+function doWhatItSays(){
+    fs.readFile('./random.txt', 'utf8', function(error, fileData){
+        console.log(fileData);
+        spotifyRequest(fileData);
+    });
+};
