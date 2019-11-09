@@ -42,7 +42,6 @@ function bandsInTown(artist) {
         Date of the Event: ${moment(response.data[0].datetime).format('L')}
         \n`);
         }).catch(function (error) {
-            // handle error
             console.log(error);
         });
 };
@@ -51,7 +50,6 @@ function spotifyRequest(song){
     spotify.search({ type: 'track', query: song, limit: 5})  
         .then(function(data){
             if(data){
-                console.log(data.tracks.items[0].album.artists);
                 console.log(`
                 Artist(s): ${data.tracks.items[0].album.artists[0].name}
                 Song Name: '${data.tracks.items[0].name}'
@@ -81,14 +79,13 @@ function omdbRequest(movie){
             IMDB Rating: ${data.data.imdbRating}
             `)
         }).catch(function (error) {
-            // handle error
             console.log(error);
         });
 };
 
 function doWhatItSays(){
     fs.readFile('./random.txt', 'utf8', function(error, fileData){
-        console.log(fileData);
-        spotifyRequest(fileData);
+        var readFileData = fileData.split(',');
+        spotifyRequest(readFileData[1]);
     });
 };
