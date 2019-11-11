@@ -2,13 +2,13 @@ require('dotenv').config();
 var fs = require('fs');
 var axios = require('axios');
 var Spotify = require('node-spotify-api');
-var moment = require('moment'); 
+var moment = require('moment');
 
 // KEYS //
 var keys = require('./keys');
 
 // SPOTIFY //
-var spotify = new Spotify(keys.spotify); 
+var spotify = new Spotify(keys.spotify);
 
 // ARGUMENTS // 
 var value = process.argv.slice(3);
@@ -19,12 +19,20 @@ switch (request) {
         bandsInTown(value);
         break;
     case 'spotify-this-song':
+        // Tried to get the default to work but I couldn't figure it out. 
+        // if (value === ' ') {
+        //     value = 'The Sign';
+        // }
         spotifyRequest(value);
         break;
     case 'movie-this':
+        // Tried to get the default to work but I couldn't figure it out. 
+        // if (value === ' ') {
+        //     value = 'Mr. Nobody';
+        // }
         omdbRequest(value);
         break;
-    case 'do-what-it-says': 
+    case 'do-what-it-says':
         doWhatItSays();
         break;
 }
@@ -34,7 +42,7 @@ function bandsInTown(artist) {
     var concertUrl = `https://rest.bandsintown.com/artists/${artist}/events?app_id=codingbootcamp`;
 
     axios.get(concertUrl)
-        .then(function(response) {
+        .then(function (response) {
             console.log(`
         **** NEXT UPCOMING SHOW **** \n
         Name of Venue: ${response.data[0].venue.name}
@@ -46,10 +54,10 @@ function bandsInTown(artist) {
         });
 };
 
-function spotifyRequest(song){
-    spotify.search({ type: 'track', query: song, limit: 5})  
-        .then(function(data){
-            if(data){
+function spotifyRequest(song) {
+    spotify.search({ type: 'track', query: song, limit: 5 })
+        .then(function (data) {
+            if (data) {
                 console.log(`
                 Artist(s): ${data.tracks.items[0].album.artists[0].name}
                 Song Name: '${data.tracks.items[0].name}'
@@ -58,17 +66,17 @@ function spotifyRequest(song){
                 `);
             }
             else if (err) {
-              return console.log('Error occurred: ' + err);
+                return console.log('Error occurred: ' + err);
             }
         });
 };
 
-function omdbRequest(movie){
+function omdbRequest(movie) {
     movie = movie.join(('+'));
-    var movieUrl = `http://www.omdbapi.com/?apikey=8c0c7a4f&t=${movie}`; 
-    
+    var movieUrl = `http://www.omdbapi.com/?apikey=8c0c7a4f&t=${movie}`;
+
     axios.get(movieUrl)
-        .then(function(data){
+        .then(function (data) {
             console.log(`
             Title of Movie: ${data.data.Title}
             Year: ${data.data.Year}
@@ -83,8 +91,8 @@ function omdbRequest(movie){
         });
 };
 
-function doWhatItSays(){
-    fs.readFile('./random.txt', 'utf8', function(error, fileData){
+function doWhatItSays() {
+    fs.readFile('./random.txt', 'utf8', function (error, fileData) {
         var readFileData = fileData.split(',');
         spotifyRequest(readFileData[1]);
     });
