@@ -44,3 +44,7 @@ To search a song, use command **'concert-this'** followed by the artist's name. 
 ## See an Example
 https://drive.google.com/file/d/1O8VhT5c4bL9dExNHZ2YD3hwFIDd-LrvV/view?ts=5dc8b8a6
 
+
+## Room for Growth :seedling:
+- Functionality for defaults
+- Logging Inputs in .txt file 
