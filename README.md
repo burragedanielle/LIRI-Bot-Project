@@ -41,3 +41,6 @@ To search a song, use command **'concert-this'** followed by the artist's name. 
 
 `node liri.js concert-this Lana Del Rey` 
 
+## See an Example
+https://drive.google.com/file/d/1O8VhT5c4bL9dExNHZ2YD3hwFIDd-LrvV/view?ts=5dc8b8a6
+
